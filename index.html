@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar de Voleibol</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .net-graphic {
+            width: 100%;
+            height: 10px;
+            background: repeating-linear-gradient(90deg, white 0px, white 15px, transparent 15px, transparent 30px);
+            margin: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .team:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .team-home {
+            background-color: #e74c3c;
+        }
+
+        .team-visitor {
+            background-color: #3498db;
+        }
+
+        .score {
+            font-size: 5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .team-logo {
+            width: 100px;
+            height: 100px;
+            margin: 10px 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .team-logo img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .logo-placeholder {
+            font-size: 12px;
+            text-align: center;
+            color: #333;
+        }
+
+        .score-buttons {
+            display: flex;
+            margin-top: 10px;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-add {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-subtract {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .set-tracker {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .set {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+            position: relative;
+        }
+
+        .set-home, .set-visitor {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            top: -5px;
+            display: none;
+        }
+
+        .set-home {
+            left: -5px;
+            background-color: #e74c3c;
+        }
+
+        .set-visitor {
+            right: -5px;
+            background-color: #3498db;
+        }
+
+        .active-set {
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+
+        .ball-animation {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-image: url('/api/placeholder/60/60');
+            background-size: contain;
+            background-repeat: no-repeat;
+            border-radius: 50%;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0) translateX(-50%) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-30px) translateX(-50%) rotate(180deg);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            color: #333;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-label:hover {
+            background-color: #2980b9;
+        }
+
+        .save-btn {
+            padding: 12px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .save-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 2;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .service-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ffc107;
+            margin-top: 10px;
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+            }
+            100% {
+                transform: scale(0.8);
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .scoreboard {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .team {
+                width: 100%;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .control-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ball-animation"></div>
+    
+    <div class="header">
+        <h1>PLACAR DE VOLEIBOL</h1>
+    </div>
+
+    <div class="net-graphic"></div>
+    
+    <div class="set-tracker">
+        <div class="set active-set" id="set1">
+            1
+            <div class="set-home"></div>
+            <div class="set-visitor"></div>
+        </div>
+        <div class="set" id="set2">
+            2
+            <div class="set-home"></div>
+            <div class="set-visitor"></div>
+        </div>
+        <div class="set" id="set3">
+            3
+            <div class="set-home"></div>
+            <div class="set-visitor"></div>
+        </div>
+        <div class="set" id="set4">
+            4
+            <div class="set-home"></div>
+            <div class="set-visitor"></div>
+        </div>
+        <div class="set" id="set5">
+            5
+            <div class="set-home"></div>
+            <div class="set-visitor"></div>
+        </div>
+    </div>
+    
+    <div class="scoreboard">
+        <div class="team team-home">
+            <div class="team-name" id="home-name">TIME CASA</div>
+            <div class="team-logo" id="home-logo" onclick="openLogoModal('home')">
+                <div class="logo-placeholder">Clique para adicionar logo</div>
+            </div>
+            <div class="score" id="home-score">0</div>
+            <div class="service-indicator" id="home-service"></div>
+            <div class="score-buttons">
+                <button class="btn btn-add" onclick="addPoint('home')">+</button>
+                <button class="btn btn-subtract" onclick="subtractPoint('home')">-</button>
+            </div>
+        </div>
+        
+        <div class="team team-visitor">
+            <div class="team-name" id="visitor-name">TIME VISITANTE</div>
+            <div class="team-logo" id="visitor-logo" onclick="openLogoModal('visitor')">
+                <div class="logo-placeholder">Clique para adicionar logo</div>
+            </div>
+            <div class="score" id="visitor-score">0</div>
+            <div class="service-indicator" id="visitor-service"></div>
+            <div class="score-buttons">
+                <button class="btn btn-add" onclick="addPoint('visitor')">+</button>
+                <button class="btn btn-subtract" onclick="subtractPoint('visitor')">-</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="control-btn" onclick="swapSides()">Trocar Lados</button>
+        <button class="control-btn" onclick="resetScore()">Reiniciar Pontuação</button>
+        <button class="control-btn" onclick="nextSet()">Próximo Set</button>
+        <button class="control-btn" onclick="toggleService()">Alternar Serviço</button>
+        <button class="control-btn" onclick="openSettingsModal()">Configurações</button>
+    </div>
+    
+    <div class="modal" id="logo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Adicionar Logo</h2>
+                <button class="close-modal" onclick="closeModal('logo-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="team-name-input" placeholder="Nome do Time">
+                <label class="file-label" for="logo-upload">Escolher Arquivo</label>
+                <input type="file" id="logo-upload" class="file-input" accept="image/*">
+                <button class="save-btn" onclick="saveLogo()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configurações</h2>
+                <button class="close-modal" onclick="closeModal('settings-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="set-points">Pontos para vencer o set:</label>
+                <select id="set-points">
+                    <option value="15">15 pontos</option>
+                    <option value="21">21 pontos</option>
+                    <option value="25" selected>25 pontos</option>
+                    <option value="30">30 pontos</option>
+                </select>
+                
+                <label for="winning-sets">Sets para vencer o jogo:</label>
+                <select id="winning-sets">
+                    <option value="2">Melhor de 3 (2 sets)</option>
+                    <option value="3" selected>Melhor de 5 (3 sets)</option>
+                    <option value="4">Melhor de 7 (4 sets)</option>
+                </select>
+                
+                <label for="final-set-points">Pontos para vencer o set final:</label>
+                <select id="final-set-points">
+                    <option value="15" selected>15 pontos</option>
+                    <option value="21">21 pontos</option>
+                    <option value="25">25 pontos</option>
+                </select>
+                
+                <button class="save-btn" onclick="saveSettings()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado do jogo
+        let state = {
+            home: {
+                score: 0,
+                sets: 0,
+                name: "TIME CASA",
+                logo: null,
+                serving: true
+            },
+            visitor: {
+                score: 0,
+                sets: 0,
+                name: "TIME VISITANTE",
+                logo: null,
+                serving: false
+            },
+            currentSet: 1,
+            maxSets: 5,
+            setsToWin: 3,
+            pointsToWin: 25,
+            finalSetPoints: 15,
+            currentTeamToEdit: null
+        };
+
+        function addPoint(team) {
+            state[team].score++;
+            document.getElementById(`${team}-score`).textContent = state[team].score;
+            
+            // Checar se o time ganhou o set
+            const isLastSet = state.currentSet === 5 || state.home.sets + state.visitor.sets + 1 >= state.maxSets;
+            const pointsNeeded = isLastSet ? state.finalSetPoints : state.pointsToWin;
+            
+            if (state[team].score >= pointsNeeded && state[team].score >= state[team === 'home' ? 'visitor' : 'home'].score + 2) {
+                winSet(team);
+            }
+            
+            // Adicionar confetti quando ponto é adicionado
+            createConfetti(5, team === 'home' ? '#e74c3c' : '#3498db');
+        }
+
+        function subtractPoint(team) {
+            if (state[team].score > 0) {
+                state[team].score--;
+                document.getElementById(`${team}-score`).textContent = state[team].score;
+            }
+        }
+
+        function swapSides() {
+            // Salvar valores temporários
+            const tempName = state.home.name;
+            const tempLogo = state.home.logo;
+            const tempScore = state.home.score;
+            const tempSets = state.home.sets;
+            const tempServing = state.home.serving;
+            
+            // Trocar casa por visitante
+            state.home.name = state.visitor.name;
+            state.home.logo = state.visitor.logo;
+            state.home.score = state.visitor.score;
+            state.home.sets = state.visitor.sets;
+            state.home.serving = state.visitor.serving;
+            
+            // Trocar visitante pelos valores temporários
+            state.visitor.name = tempName;
+            state.visitor.logo = tempLogo;
+            state.visitor.score = tempScore;
+            state.visitor.sets = tempSets;
+            state.visitor.serving = tempServing;
+            
+            // Atualizar a interface
+            updateInterface();
+        }
+
+        function resetScore() {
+            state.home.score = 0;
+            state.visitor.score = 0;
+            document.getElementById('home-score').textContent = '0';
+            document.getElementById('visitor-score').textContent = '0';
+        }
+
+        function nextSet() {
+            if (state.currentSet < state.maxSets) {
+                // Verificar se algum time já ganhou o número necessário de sets
+                if (state.home.sets >= state.setsToWin || state.visitor.sets >= state.setsToWin) {
+                    alert("O jogo já terminou! Reinicie para começar um novo jogo.");
+                    return;
+                }
+                
+                state.currentSet++;
+                resetScore();
+                
+                // Atualizar set ativo na interface
+                document.querySelectorAll('.set').forEach(setEl => {
+                    setEl.classList.remove('active-set');
+                });
+                document.getElementById(`set${state.currentSet}`).classList.add('active-set');
+                
+                // Trocar lados automaticamente a cada set (exceto no quinto)
+                if (state.currentSet % 2 === 0 || (state.currentSet === 5)) {
+                    swapSides();
+                }
+            } else {
+                alert("Máximo de sets atingido!");
+            }
+        }
+
+        function winSet(team) {
+            state[team].sets++;
+            alert(`${state[team].name} venceu o set ${state.currentSet}!`);
+            
+            // Marcar o vencedor do set na interface
+            const setElement = document.getElementById(`set${state.currentSet}`);
+            const winnerIndicator = setElement.querySelector(`.set-${team}`);
+            winnerIndicator.style.display = 'block';
+            
+            // Verificar se o jogo acabou
+            if (state[team].sets >= state.setsToWin) {
+                createConfetti(100, team === 'home' ? '#e74c3c' : '#3498db');
+                setTimeout(() => {
+                    alert(`${state[team].name} venceu o jogo!`);
+                }, 500);
+            } else {
+                nextSet();
+            }
+        }
+
+        function toggleService() {
+            state.home.serving = !state.home.serving;
+            state.visitor.serving = !state.visitor.serving;
+            
+            document.getElementById('home-service').style.display = state.home.serving ? 'block' : 'none';
+            document.getElementById('visitor-service').style.display = state.visitor.serving ? 'block' : 'none';
+        }
+
+        function openLogoModal(team) {
+            state.currentTeamToEdit = team;
+            document.getElementById('team-name-input').value = state[team].name;
+            document.getElementById('logo-modal').style.display = 'flex';
+        }
+
+        function openSettingsModal() {
+            document.getElementById('set-points').value = state.pointsToWin;
+            document.getElementById('winning-sets').value = state.setsToWin;
+            document.getElementById('final-set-points').value = state.finalSetPoints;
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function saveLogo() {
+            const team = state.currentTeamToEdit;
+            const newName = document.getElementById('team-name-input').value.trim();
+            
+            if (newName) {
+                state[team].name = newName;
+                document.getElementById(`${team}-name`).textContent = newName;
+            }
+            
+            const fileInput = document.getElementById('logo-upload');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state[team].logo = e.target.result;
+                    const logoElement = document.getElementById(`${team}-logo`);
+                    logoElement.innerHTML = `<img src="${e.target.result}" alt="${newName} Logo">`;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+            
+            closeModal('logo-modal');
+        }
+
+        function saveSettings() {
+            state.pointsToWin = parseInt(document.getElementById('set-points').value);
+            state.setsToWin = parseInt(document.getElementById('winning-sets').value);
+            state.finalSetPoints = parseInt(document.getElementById('final-set-points').value);
+            closeModal('settings-modal');
+        }
+
+        function updateInterface() {
+            // Atualizar nomes
+            document.getElementById('home-name').textContent = state.home.name;
+            document.getElementById('visitor-name').textContent = state.visitor.name;
+            
+            // Atualizar pontuações
+            document.getElementById('home-score').textContent = state.home.score;
+            document.getElementById('visitor-score').textContent = state.visitor.score;
+            
+            // Atualizar logos
+            if (state.home.logo) {
+                document.getElementById('home-logo').innerHTML = `<img src="${state.home.logo}" alt="${state.home.name} Logo">`;
+            } else {
+                document.getElementById('home-logo').innerHTML = '<div class="logo-placeholder">Clique para adicionar logo</div>';
+            }
+            
+            if (state.visitor.logo) {
+                document.getElementById('visitor-logo').innerHTML = `<img src="${state.visitor.logo}" alt="${state.visitor.name} Logo">`;
+            } else {
+                document.getElementById('visitor-logo').innerHTML = '<div class="logo-placeholder">Clique para adicionar logo</div>';
+            }
+            
+            // Atualizar indicador de serviço
+            document.getElementById('home-service').style.display = state.home.serving ? 'block' : 'none';
+            document.getElementById('visitor-service').style.display = state.visitor.serving ? 'block' : 'none';
+        }
+
+        function createConfetti(amount, color) {
+            for (let i = 0; i < amount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = color || getRandomColor();
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.opacity = Math.random() + 0.5;
+                confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
+                document.body.appendChild(confetti);
+                
+                // Remover o confetti após a animação
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Inicializar serviço
+        document.getElementById('home-service').style.display = 'block';
+        
+        // Evento para teclas de atalho
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'q' || e.key === 'Q') {
+                addPoint('home');
+            } else if (e.key === 'p' || e.key === 'P') {
+                addPoint('visitor');
+            }
+        });
+    </script>
+</body>
+</html>
